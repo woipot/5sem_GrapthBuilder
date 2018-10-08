@@ -53,16 +53,20 @@
         </Menu>
 
         <lvc:CartesianChart x:Name="MainChart" Grid.Column="0" Grid.Row="1"  Background="#FF2D2D30"
+                            DisableAnimations="True"
+                            Zoom="{Binding ZoomingMode}"
                             Series="{Binding Series, Mode=OneWay}"
                             MouseMove="ChartMouseMove"
                             DataClickCommand="{Binding DataClickCommand}">
             
             <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Y"/>
+                <lvc:Axis Title="Y" LabelFormatter="{Binding YFormatter}" 
+                          Separator="{x:Static lvc:DefaultAxes.CleanSeparator}"/>
             </lvc:CartesianChart.AxisY>
             
             <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="X"/>
+                <lvc:Axis Title="X" LabelFormatter="{Binding XFormatter}"
+                          Separator="{x:Static lvc:DefaultAxes.CleanSeparator}"/>
             </lvc:CartesianChart.AxisX>
         </lvc:CartesianChart>
 
@@ -81,7 +85,9 @@
                 <TextBlock Text="{Binding SelectedY, Mode=OneWay}" Foreground="Crimson"/>
             </TextBlock>
 
-            <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30" Margin="0,20">
+            <Button Command="{Binding ResetZoomingCommand}" Background="#FF767272" Foreground="White" Margin="0, 20">Reset Zoom</Button>
+            
+            <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30" >
                 <ListView.Resources>
                     <DataTemplate x:Key="NumberColumnDataTemplate">
                         <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem},

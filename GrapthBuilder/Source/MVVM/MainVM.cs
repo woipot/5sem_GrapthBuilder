@@ -22,10 +22,23 @@ namespace GrapthBuilder.Source.MVVM
 
         public SeriesCollection Series => _graphicsModel.Series;
 
+        public ZoomingOptions ZoomingMode
+        {
+            get => _zoomingMode;
+            set
+            {
+                _zoomingMode = value;
+                OnPropertyChanged("ZoomingMode");
+            }
+        }
+
         public double SelectedX { get; set; }
         public double SelectedY { get; set; }
 
         public IEnumerable<EquationModel> Equations => _graphicsModel.Equations;
+
+        public Func<double, string> XFormatter { get; set; }
+        public Func<double, string> YFormatter { get; set; }
 
         #endregion
 
@@ -35,6 +48,7 @@ namespace GrapthBuilder.Source.MVVM
         public MainVM()
         {
             _graphicsModel = new GraphicsModel();
+            ZoomingMode = ZoomingOptions.Xy;
 
             SelectedX = 0;
             SelectedY = 0;
@@ -42,6 +56,10 @@ namespace GrapthBuilder.Source.MVVM
             LoadCommand = new DelegateCommand(LoadFromFile);
             AppendCommand = new DelegateCommand(AppendFromFile);
             DataClickCommand = new DelegateCommand<ChartPoint>(SellectPoint);
+            ResetZoominCommand = new DelegateCommand<RoutedEventArgs>(ResetZooming);
+
+            XFormatter = RerangeX;
+            YFormatter = RerangeY;
         }
 
         #endregion
@@ -54,6 +72,8 @@ namespace GrapthBuilder.Source.MVVM
         public DelegateCommand AppendCommand { get; }
 
         public DelegateCommand<ChartPoint> DataClickCommand { get; }
+    
+        public DelegateCommand<RoutedEventArgs> ResetZoominCommand { get; }
 
         #endregion
 
@@ -104,7 +124,24 @@ namespace GrapthBuilder.Source.MVVM
             OnPropertyChanged("SelectedY");
         }
 
+        private void ResetZooming(RoutedEventArgs e)
+        {
+            //X.MinValue = double.NaN;
+            //X.MaxValue = double.NaN;
+            //Y.MinValue = double.NaN;
+            //Y.MaxValue = double.NaN;
+        }
+
+        private string RerangeX(double val)
+        {
+            return val.ToString("N");
+        }
+
+        private string RerangeY(double val)
+        {
+            return val.ToString("N");
+        }
         #endregion
-        
+
     }
 }

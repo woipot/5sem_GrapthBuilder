@@ -152,6 +152,7 @@ namespace GrapthBuilder.Source.MVVM.Models
                 
             OnPropertyChanged("Series");
         }
+        
     }
     
 }
