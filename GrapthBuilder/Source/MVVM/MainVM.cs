@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Windows;
 using GrapthBuilder.Source.MVVM.Models;
 using LiveCharts;
@@ -8,18 +10,28 @@ using Microsoft.Win32;
 
 namespace GrapthBuilder.Source.MVVM
 {
-    class MainVM : BindableBase
+    internal class MainVM : BindableBase
     {
+
         private GraphicsModel _graphicsModel;
 
         public SeriesCollection Series => _graphicsModel.Series;
 
+        public double SelectedX { get; set; }
+        public double SelectedY { get; set; }
+
+        public IEnumerable<EquationModel> Equations => _graphicsModel.Equations; 
 
         public MainVM()
         {
             _graphicsModel = new GraphicsModel();
 
+            SelectedX = 0;
+            SelectedY = 0;
+
             LoadCommand = new DelegateCommand(LoadFromFile);
+            AppendCommand = new DelegateCommand(AppendFromFile);
+            DataClickCommand = new DelegateCommand<ChartPoint>(SellectPoint);
         }
 
 
@@ -27,10 +39,16 @@ namespace GrapthBuilder.Source.MVVM
 
         public DelegateCommand LoadCommand { get; }
 
-        public void LoadFromFile()
+        public DelegateCommand AppendCommand { get; }
+
+        public DelegateCommand<ChartPoint> DataClickCommand { get; }
+
+
+
+
+        private void LoadFromFile()
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "txt|*.txt";
+            var dialog = new OpenFileDialog {Filter = "txt|*.txt"};
 
             if (dialog.ShowDialog() == true)
             {
@@ -46,6 +64,30 @@ namespace GrapthBuilder.Source.MVVM
             }
         }
 
+        private void AppendFromFile()
+        {
+            var dialog = new OpenFileDialog { Filter = "txt|*.txt" };
 
+            if (dialog.ShowDialog() == true)
+            {
+                var patch = dialog.FileName;
+                try
+                {
+                    _graphicsModel.AppendFromFile(patch);
+                }
+                catch (Exception er)
+                {
+                    MessageBox.Show("Eror in file : " + er.Message);
+                }
+            }
+        }
+
+        private void SellectPoint(ChartPoint point)
+        {
+            SelectedX = point.X;
+            SelectedY = point.Y;
+            OnPropertyChanged("SelectedX");
+            OnPropertyChanged("SelectedY");
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ELW.Library.Math;
 using ELW.Library.Math.Expressions;
 using ELW.Library.Math.Tools;
@@ -9,14 +10,12 @@ using Microsoft.Practices.Prism.Mvvm;
 
 namespace GrapthBuilder.Source.MVVM.Models
 {
-    class EquasionModel : BindableBase
+    internal class EquationModel : BindableBase
     {
+        private readonly string _strExpression;
         private readonly CompiledExpression _expression;
-
         private readonly double _step;
-
         private readonly string _variableName;
-
         private Range _range;
 
 
@@ -58,7 +57,7 @@ namespace GrapthBuilder.Source.MVVM.Models
             }
         }
 
-        public string Expression => _expression.ToString();
+        public string StrExpression => _strExpression;
 
         public ChartValues<ObservablePoint> DotSet { get; }
 
@@ -67,8 +66,10 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         #region Constructors
 
-        public EquasionModel(CompiledExpression optimizedExpression, Range range, double step = 0.01, string variableName = "x")
+        public EquationModel(string strExpr, CompiledExpression optimizedExpression,
+            Range range, double step = 0.01, string variableName = "x")
         {
+            _strExpression = strExpr;
             _expression = optimizedExpression;
             _step = step;
             _variableName = variableName;
@@ -91,10 +92,8 @@ namespace GrapthBuilder.Source.MVVM.Models
 
                 if (!inRange)
                 {
-                    var variable = new VariableValue(i, VariableName);
-                    var resInPoint = ToolsHelper.Calculator.Calculate(_expression, new List<VariableValue> { variable });
-                    var observablePoint = new ObservablePoint(i, resInPoint);
-                    DotSet.Add(observablePoint); 
+                    var pointResult = CalculateInPoint(i);
+                    DotSet.Add(pointResult);
                 }
             }
         }
@@ -119,17 +118,38 @@ namespace GrapthBuilder.Source.MVVM.Models
 
             for (var i = additionalRange.LeftLimit; i <= additionalRange.RightLimit; i += Step)
             {
-                var variable = new VariableValue(i, VariableName);
-                var resInPoint = ToolsHelper.Calculator.Calculate(_expression, new List<VariableValue> { variable });
-                var observablePoint = new ObservablePoint(i, resInPoint);
-                DotSet.Add(observablePoint);
+                var pointResult = CalculateInPoint(i);
+                DotSet.Add(pointResult);
             }
-
         }
+
+
 
         #endregion
 
 
+        #region PrivateMethods
+
+        private ObservablePoint CalculateInPoint(double point)
+        {
+            try
+            {
+                var variable = new VariableValue(point, VariableName);
+                var resInPoint = ToolsHelper.Calculator.Calculate(_expression, new List<VariableValue> { variable });
+                var observablePoint = new ObservablePoint(point, resInPoint);
+
+                return observablePoint;
+            }
+            catch (Exception)
+            {
+                return new ObservablePoint(point, double.NaN);
+            }
+            
+          
+        }
+
+
+        #endregion
 
     }
 }

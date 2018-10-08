@@ -90,8 +90,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Source\Classes\Range.cs" />
+    <Compile Include="Source\Converters\ItemPositionToIndexConverter.cs" />
     <Compile Include="Source\MVVM\MainVM.cs" />
-    <Compile Include="Source\MVVM\Models\EquasionModel.cs" />
+    <Compile Include="Source\MVVM\Models\EquationModel.cs" />
     <Compile Include="Source\MVVM\Models\GraphModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

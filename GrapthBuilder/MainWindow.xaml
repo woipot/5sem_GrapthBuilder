@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mvvm="clr-namespace:GrapthBuilder.Source.MVVM"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        xmlns:models="clr-namespace:GrapthBuilder.Source.MVVM.Models"
+        xmlns:converters="clr-namespace:GrapthBuilder.Source.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
 
@@ -18,6 +20,18 @@
             <Setter Property="Background" Value="#FF2D2D30"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
+        
+        <Style TargetType="TextBlock">
+            <Setter Property="Background" Value="#FF2D2D30"/>
+            <Setter Property="Foreground" Value="Aqua"/>
+        </Style>
+        <converters:ItemPositionToIndexConverter x:Key="NumConverter"/>
+
+        <Style TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Background" Value="#FF2D2D30"/>
+            <Setter Property="Foreground" Value="Aqua"/>
+        </Style>
+
     </Window.Resources>
    
     
@@ -33,11 +47,59 @@
 
         <Menu Grid.ColumnSpan="2" Background="#FF2D2D30" VerticalAlignment="Center">
             <MenuItem Header="File">
-                <MenuItem Header="Load" Command="{Binding LoadCommand}"/>
+                <MenuItem Header="Load from..." Command="{Binding LoadCommand}"/>
+                <MenuItem Header="Append from..." Command="{Binding AppendCommand}"/>
             </MenuItem>
         </Menu>
 
-        <lvc:CartesianChart Grid.Column="0" Grid.Row="1"  Background="#FF2D2D30" Series="{Binding Series, Mode=OneWay}"/>
+        <lvc:CartesianChart x:Name="MainChart" Grid.Column="0" Grid.Row="1"  Background="#FF2D2D30"
+                            Series="{Binding Series, Mode=OneWay}"
+                            MouseMove="ChartMouseMove"
+                            DataClickCommand="{Binding DataClickCommand}">
+            
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis Title="Y"/>
+            </lvc:CartesianChart.AxisY>
+            
+            <lvc:CartesianChart.AxisX>
+                <lvc:Axis Title="X"/>
+            </lvc:CartesianChart.AxisX>
+        </lvc:CartesianChart>
 
+        <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch">
+            <TextBlock HorizontalAlignment="Center">
+                <TextBlock >Mouse at: </TextBlock>
+                <TextBlock x:Name="X" Foreground="Crimson"/>
+                <TextBlock >, </TextBlock>
+                <TextBlock x:Name="Y" Foreground="Crimson"/>
+            </TextBlock>
+            
+            <TextBlock HorizontalAlignment="Center" >
+                <TextBlock >Selected point: </TextBlock>
+                <TextBlock Text="{Binding SelectedX, Mode=OneWay}" Foreground="Crimson"/>
+                <TextBlock >, </TextBlock>
+                <TextBlock Text="{Binding SelectedY, Mode=OneWay}" Foreground="Crimson"/>
+            </TextBlock>
+
+            <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30" Margin="0,20">
+                <ListView.Resources>
+                    <DataTemplate x:Key="NumberColumnDataTemplate">
+                        <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem},
+                Converter={StaticResource ResourceKey=NumConverter}}" HorizontalAlignment="Center" Foreground="Chartreuse"/>
+                    </DataTemplate>
+                    <DataTemplate x:Key="EqColumnDataTemplate" DataType="models:EquationModel" >
+                        <TextBlock Text="{Binding StrExpression}" HorizontalAlignment="Left" Foreground="Chartreuse"/>
+                    </DataTemplate>
+                </ListView.Resources>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="№" CellTemplate="{StaticResource ResourceKey=NumberColumnDataTemplate}"/>
+                        <GridViewColumn Header="Equation" CellTemplate="{StaticResource ResourceKey = EqColumnDataTemplate}"/>
+                    </GridView>
+                 </ListView.View>
+            </ListView>
+
+        </StackPanel>
+        
     </Grid>
 </Window>
