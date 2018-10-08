@@ -15,12 +15,22 @@ namespace GrapthBuilder.Source.MVVM
 
         private GraphicsModel _graphicsModel;
 
+        private ZoomingOptions _zoomingMode;
+
+
+        #region Properties
+
         public SeriesCollection Series => _graphicsModel.Series;
 
         public double SelectedX { get; set; }
         public double SelectedY { get; set; }
 
-        public IEnumerable<EquationModel> Equations => _graphicsModel.Equations; 
+        public IEnumerable<EquationModel> Equations => _graphicsModel.Equations;
+
+        #endregion
+
+
+        #region Constructor
 
         public MainVM()
         {
@@ -34,8 +44,10 @@ namespace GrapthBuilder.Source.MVVM
             DataClickCommand = new DelegateCommand<ChartPoint>(SellectPoint);
         }
 
+        #endregion
 
 
+        #region Commands
 
         public DelegateCommand LoadCommand { get; }
 
@@ -43,12 +55,14 @@ namespace GrapthBuilder.Source.MVVM
 
         public DelegateCommand<ChartPoint> DataClickCommand { get; }
 
+        #endregion
 
 
+        #region Other private functions
 
         private void LoadFromFile()
         {
-            var dialog = new OpenFileDialog {Filter = "txt|*.txt"};
+            var dialog = new OpenFileDialog { Filter = "txt|*.txt" };
 
             if (dialog.ShowDialog() == true)
             {
@@ -89,5 +103,8 @@ namespace GrapthBuilder.Source.MVVM
             OnPropertyChanged("SelectedX");
             OnPropertyChanged("SelectedY");
         }
+
+        #endregion
+        
     }
 }
