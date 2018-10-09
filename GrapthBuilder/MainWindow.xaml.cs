@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using GrapthBuilder.Source.MVVM;
 using LiveCharts.Wpf;
 
 namespace GrapthBuilder
@@ -12,11 +13,19 @@ namespace GrapthBuilder
     {
         public MainWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
+
+            if (DataContext is MainVM vm)
+            {
+                vm.AxisX = AxisX;
+                vm.AxisY = AxisY;
+            }
+
         }
 
         private void ChartMouseMove(object sender, MouseEventArgs e)
         {
+
             Point point;
             try
             {

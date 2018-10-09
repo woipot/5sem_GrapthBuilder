@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using ELW.Library.Math;
 using ELW.Library.Math.Expressions;
 using ELW.Library.Math.Tools;
 using GrapthBuilder.Source.Classes;
 using LiveCharts;
 using LiveCharts.Defaults;
+using LiveCharts.Wpf;
 using Microsoft.Practices.Prism.Mvvm;
 
 namespace GrapthBuilder.Source.MVVM.Models
 {
     internal class EquationModel : BindableBase
     {
+        private readonly double _defaultRange;
+        private readonly double _step;
+
         private readonly string _strExpression;
         private readonly CompiledExpression _expression;
-        private readonly double _step;
         private readonly string _variableName;
-        private Range _range;
 
 
         #region Properties
@@ -24,42 +27,7 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         public string VariableName => _variableName;
 
-        public double LeftLimit
-        {
-            get => _range.LeftLimit;
-            set
-            {
-                CalculateRange(value);
-                _range.LeftLimit = value;
-            }
-        }
-
-        public double RightLimit
-        {
-            get => _range.RightLimit;
-            set
-            {
-                CalculateRange(value);
-                _range.RightLimit = value;
-            }
-        }
-
-        public Range Range
-        {
-            get => _range;
-            set
-            {
-                CalculateRange(value);
-                _range = value;
-
-                OnPropertyChanged("LeftLimit");
-                OnPropertyChanged("RightLimit");
-            }
-        }
-
         public string StrExpression => _strExpression;
-
-        public ChartValues<ObservablePoint> DotSet { get; }
 
         #endregion
 
@@ -67,16 +35,14 @@ namespace GrapthBuilder.Source.MVVM.Models
         #region Constructors
 
         public EquationModel(string strExpr, CompiledExpression optimizedExpression,
-            Range range, double step = 0.01, string variableName = "x")
+                        double step = 0.01, string variableName = "x", double defaultRange = 100)
         {
             _strExpression = strExpr;
             _expression = optimizedExpression;
             _step = step;
             _variableName = variableName;
+            _defaultRange = defaultRange;
 
-            DotSet = new ChartValues<ObservablePoint>();
-
-            Range = range;
         }
 
         #endregion
@@ -84,47 +50,19 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         #region Public methods
 
-        public void CalculateRange(Range newRange)
+        public LineSeries GetSeriesInRange(Range range)
         {
-            for (var i = newRange.LeftLimit; i <= newRange.RightLimit; i += Step)
-            {
-                var inRange = _range?.InRange(i) ?? false;
+            var chartVales = CalculateRange(range);
 
-                if (!inRange)
-                {
-                    var pointResult = CalculateInPoint(i);
-                    DotSet.Add(pointResult);
-                }
-            }
+            var lineSeries = new LineSeries{Values = chartVales};
+            return lineSeries;
         }
 
-        public void CalculateRange(double newLimit)
+        public LineSeries GetSeriesInRange(double leftLimit, double rightLimit)
         {
-            var inRange = _range.InRange(newLimit);
-            if (inRange) return;
-
-            Range additionalRange;
-            var isLeftLimit = newLimit < LeftLimit;
-            if (isLeftLimit)
-            {
-                additionalRange = new Range(newLimit, LeftLimit - 1);
-                LeftLimit = newLimit;
-            }
-            else
-            {
-                additionalRange = new Range(RightLimit + 1, newLimit);
-                RightLimit = newLimit;
-            }
-
-            for (var i = additionalRange.LeftLimit; i <= additionalRange.RightLimit; i += Step)
-            {
-                var pointResult = CalculateInPoint(i);
-                DotSet.Add(pointResult);
-            }
+            var range = new Range(leftLimit, rightLimit);
+            return GetSeriesInRange(range);
         }
-
-
-
         #endregion
 
 
@@ -144,10 +82,22 @@ namespace GrapthBuilder.Source.MVVM.Models
             {
                 return new ObservablePoint(point, double.NaN);
             }
-            
-          
         }
 
+        private ChartValues<ObservablePoint> CalculateRange(Range range)
+        {
+            var points = new ChartValues<ObservablePoint>();
+
+            var step = range.Length() / _defaultRange;
+            //var currentStep = Step + Step * Math.Round(_range.Length() / _defaultRange);
+            for (var i = range.LeftLimit; i <= range.RightLimit; i += step)
+            {
+                var pointResult = CalculateInPoint(i);
+                points.Add(pointResult);
+            }
+
+            return points;
+        }
 
         #endregion
 

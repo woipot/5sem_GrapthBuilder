@@ -14,55 +14,75 @@ namespace GrapthBuilder.Source.MVVM.Models
 {
     internal class GraphicsModel : BindableBase
     {
-        private const double DefaultRange = 100;
+        private const double DefaultRange = 10;
         private const double Step = 1;
 
 
-        private ObservableCollection<EquationModel> _equations;
-        private SeriesCollection _series;
-        private Range _range;
+        private readonly ObservableCollection<EquationModel> _equations;
+        private readonly SeriesCollection _series;
+        private Range _currentRange;
+        
 
+        #region Properties
 
         public SeriesCollection Series => _series;
         public IEnumerable<EquationModel> Equations => _equations;
 
+        #endregion
+
+
+        #region Constructor
 
         public GraphicsModel()
         {
             _equations = new ObservableCollection<EquationModel>();
             _equations.CollectionChanged += UppdateSeries;
 
+            _currentRange = new Range(-DefaultRange, DefaultRange);
+
             _series = new SeriesCollection();
-            _range = new Range(-DefaultRange, DefaultRange);
         }
 
+        #endregion
 
+
+        #region Public methods
 
         public void LoadFromFile(string patch)
         {
-            if(_equations.Any())
+            if (_equations.Any())
                 _equations.Clear();
 
-            var result = Load(patch);
+            if (_series.Any())
+                _series.Clear();
 
+
+            var result = Load(patch);
             foreach (var equation in result)
             {
                 _equations.Add(equation);
             }
 
+            OnPropertyChanged("Equations");
         }
 
-        public void AppendFromFile(string patch)
+        public void RerangeX(double axisXActualMinValue, double axisXActualMaxValue)
         {
-            var result = Load(patch);
+            if(_series.Any())
+                _series.Clear();
 
-            foreach (var equasionModel in result)
+            _currentRange = new Range(axisXActualMinValue, axisXActualMaxValue);
+            foreach (var equationModel in _equations)
             {
-                _equations.Add(equasionModel);          
+                AddSeries(equationModel);
             }
+           
         }
 
+        #endregion
 
+
+        #region Private methods
 
         private IEnumerable<EquationModel> Load(string patch)
         {
@@ -70,88 +90,59 @@ namespace GrapthBuilder.Source.MVVM.Models
 
             using (var sr = new StreamReader(patch))
             {
-
                 string str;
                 while ((str = sr.ReadLine()) != null)
                 {
-                    var preparedExpression = ToolsHelper.Parser.Parse(str);
-                    var compiledExpression = ToolsHelper.Compiler.Compile(preparedExpression);
-                    var optimizedExpression = ToolsHelper.Optimizer.Optimize(compiledExpression);
-
-                    var equastion = new EquationModel(str + "= y", optimizedExpression, (Range)_range.Clone(), Step);
-
+                    var equastion = CreateEquation(str, _currentRange);
                     resultList.Add(equastion);
                 }
-
             }
-
             return resultList;
 
         }
 
-        private void UppdateSeries(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        private static EquationModel CreateEquation(string equationStr, Range range)
         {
-            var eventAction = notifyCollectionChangedEventArgs.Action;
+            var preparedExpression = ToolsHelper.Parser.Parse(equationStr);
+            var compiledExpression = ToolsHelper.Compiler.Compile(preparedExpression);
+            var optimizedExpression = ToolsHelper.Optimizer.Optimize(compiledExpression);
 
-            var notTypedItems = notifyCollectionChangedEventArgs.NewItems;
-            var items = notTypedItems.Cast<EquationModel>();
+            var equastion = new EquationModel(equationStr + "= y", optimizedExpression, Step);
 
+            return equastion;
+        }
 
-            if (eventAction == NotifyCollectionChangedAction.Add)
+        private void UppdateSeries(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                foreach (var equation in items)
+                foreach (var item in e.NewItems)
                 {
-                    var lineSeries = new LineSeries {Fill = Brushes.Transparent, Values = equation.DotSet, PointGeometrySize = 1, Tag = equation};
-                    _series.Add(lineSeries);
+                    var equation = item as EquationModel;
+                    AddSeries(equation);
                 }
             }
-            else if (eventAction == NotifyCollectionChangedAction.Remove)
+            if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                foreach (var equation in items)
-                {
-                    for(var i = 0; i < _series.Count; i++)
-                    {
-                        var series = (LineSeries) _series[i];
-
-                        if (series.Tag == equation)
-                        {
-                            _series.Remove(series);
-                            break;
-                        }
-                    }
-                }
-            }
-            else if (eventAction == NotifyCollectionChangedAction.Reset)
-            {
-                _series.Clear();
-            }
-            else if (eventAction == NotifyCollectionChangedAction.Replace)
-            {
-                var oldItems = notifyCollectionChangedEventArgs.OldItems;
-                var counter = 0;
-                foreach (var oldEquation in oldItems)
-                {
-                    for (var i = 0; i < _series.Count; i++)
-                    {
-                        var series = (LineSeries)_series[i];
-
-                        if (series.Tag == oldEquation)
-                        {
-                            _series.Remove(series);
-                            var newEquasion = items.ElementAt(counter);
-
-                            var lineSeries = new LineSeries { Fill = Brushes.Transparent, Values = newEquasion.DotSet, PointGeometrySize = 1, Tag = newEquasion};
-                            _series.Add(lineSeries);
-
-                            break;
-                        }
-                    }
-                    counter++;
-                }
-            }
                 
+                OnPropertyChanged("Series");
+            }
+        }
+
+        private void AddSeries(EquationModel equation)
+        {
+            var lineSeries = equation.GetSeriesInRange(_currentRange);
+            //lineSeries.Fill = Brushes.Transparent;
+            //lineSeries.PointGeometrySize = 1;
+            //lineSeries.Tag = equation;
+
+            _series.Add(lineSeries);
+
             OnPropertyChanged("Series");
         }
+
+        #endregion
+
         
     }
     

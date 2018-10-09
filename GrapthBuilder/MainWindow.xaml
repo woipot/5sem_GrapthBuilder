@@ -25,6 +25,7 @@
             <Setter Property="Background" Value="#FF2D2D30"/>
             <Setter Property="Foreground" Value="Aqua"/>
         </Style>
+        
         <converters:ItemPositionToIndexConverter x:Key="NumConverter"/>
 
         <Style TargetType="{x:Type GridViewColumnHeader}">
@@ -60,15 +61,20 @@
                             DataClickCommand="{Binding DataClickCommand}">
             
             <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Y" LabelFormatter="{Binding YFormatter}" 
-                          Separator="{x:Static lvc:DefaultAxes.CleanSeparator}"/>
+                <lvc:Axis Title="Y" x:Name="AxisY" LabelFormatter="{Binding YFormatter}" 
+                          MaxRange="{Binding MaxRange, Mode=OneWay}"
+                          MinRange="{Binding MinRange, Mode=OneWay}"/>
             </lvc:CartesianChart.AxisY>
             
+
             <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="X" LabelFormatter="{Binding XFormatter}"
-                          Separator="{x:Static lvc:DefaultAxes.CleanSeparator}"/>
+                <lvc:Axis Title="X" x:Name="AxisX" LabelFormatter="{Binding XFormatter}"
+                          MaxRange="{Binding MaxRange, Mode=OneWay}"
+                          MinRange="{Binding MinRange, Mode=OneWay}"/>
             </lvc:CartesianChart.AxisX>
         </lvc:CartesianChart>
+
+        
 
         <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch">
             <TextBlock HorizontalAlignment="Center">
@@ -85,26 +91,25 @@
                 <TextBlock Text="{Binding SelectedY, Mode=OneWay}" Foreground="Crimson"/>
             </TextBlock>
 
-            <Button Command="{Binding ResetZoomingCommand}" Background="#FF767272" Foreground="White" Margin="0, 20">Reset Zoom</Button>
-            
-            <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30" >
+            <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30" Margin="0,20">
                 <ListView.Resources>
                     <DataTemplate x:Key="NumberColumnDataTemplate">
                         <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem},
                 Converter={StaticResource ResourceKey=NumConverter}}" HorizontalAlignment="Center" Foreground="Chartreuse"/>
                     </DataTemplate>
+
                     <DataTemplate x:Key="EqColumnDataTemplate" DataType="models:EquationModel" >
                         <TextBlock Text="{Binding StrExpression}" HorizontalAlignment="Left" Foreground="Chartreuse"/>
                     </DataTemplate>
                 </ListView.Resources>
+
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="№" CellTemplate="{StaticResource ResourceKey=NumberColumnDataTemplate}"/>
                         <GridViewColumn Header="Equation" CellTemplate="{StaticResource ResourceKey = EqColumnDataTemplate}"/>
                     </GridView>
-                 </ListView.View>
+                </ListView.View>
             </ListView>
-
         </StackPanel>
         
     </Grid>

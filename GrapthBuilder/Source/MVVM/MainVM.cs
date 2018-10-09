@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using GrapthBuilder.Source.MVVM.Models;
 using LiveCharts;
+using LiveCharts.Wpf;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Mvvm;
 using Microsoft.Win32;
@@ -21,6 +23,7 @@ namespace GrapthBuilder.Source.MVVM
         #region Properties
 
         public SeriesCollection Series => _graphicsModel.Series;
+        public IEnumerable<EquationModel> Equations => _graphicsModel.Equations;
 
         public ZoomingOptions ZoomingMode
         {
@@ -35,11 +38,15 @@ namespace GrapthBuilder.Source.MVVM
         public double SelectedX { get; set; }
         public double SelectedY { get; set; }
 
-        public IEnumerable<EquationModel> Equations => _graphicsModel.Equations;
 
         public Func<double, string> XFormatter { get; set; }
         public Func<double, string> YFormatter { get; set; }
 
+        public double MaxRange { get; }
+        public double MinRange { get; }
+
+        public Axis AxisX { get; set; } = null;
+        public Axis AxisY { get; set; } = null;
         #endregion
 
 
@@ -53,10 +60,12 @@ namespace GrapthBuilder.Source.MVVM
             SelectedX = 0;
             SelectedY = 0;
 
+            MaxRange = 10000;
+            MinRange = -10000;
+
             LoadCommand = new DelegateCommand(LoadFromFile);
             AppendCommand = new DelegateCommand(AppendFromFile);
             DataClickCommand = new DelegateCommand<ChartPoint>(SellectPoint);
-            ResetZoominCommand = new DelegateCommand<RoutedEventArgs>(ResetZooming);
 
             XFormatter = RerangeX;
             YFormatter = RerangeY;
@@ -73,7 +82,8 @@ namespace GrapthBuilder.Source.MVVM
 
         public DelegateCommand<ChartPoint> DataClickCommand { get; }
     
-        public DelegateCommand<RoutedEventArgs> ResetZoominCommand { get; }
+        public DelegateCommand ResetZoominCommand { get; }
+
 
         #endregion
 
@@ -107,7 +117,7 @@ namespace GrapthBuilder.Source.MVVM
                 var patch = dialog.FileName;
                 try
                 {
-                    _graphicsModel.AppendFromFile(patch);
+                    _graphicsModel.LoadFromFile(patch);
                 }
                 catch (Exception er)
                 {
@@ -118,28 +128,32 @@ namespace GrapthBuilder.Source.MVVM
 
         private void SellectPoint(ChartPoint point)
         {
-            SelectedX = point.X;
-            SelectedY = point.Y;
-            OnPropertyChanged("SelectedX");
-            OnPropertyChanged("SelectedY");
-        }
-
-        private void ResetZooming(RoutedEventArgs e)
-        {
-            //X.MinValue = double.NaN;
-            //X.MaxValue = double.NaN;
-            //Y.MinValue = double.NaN;
-            //Y.MaxValue = double.NaN;
+            if (point != null)
+            {
+                SelectedX = point.X;
+                SelectedY = point.Y;
+                OnPropertyChanged("SelectedX");
+                OnPropertyChanged("SelectedY");
+            }
         }
 
         private string RerangeX(double val)
         {
-            return val.ToString("N");
-        }
+            try
+            {
+                _graphicsModel.RerangeX(AxisX.ActualMinValue, AxisX.ActualMaxValue);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
 
+            return val.ToString("R");
+        }
+    
         private string RerangeY(double val)
         {
-            return val.ToString("N");
+            return val.ToString("R");
         }
         #endregion
 
