@@ -82,9 +82,11 @@ namespace GrapthBuilder.Source.MVVM.Models
 
             var seriesList = new List<LineSeries>();
             _currentRange = new Range(axisXActualMinValue, axisXActualMaxValue);
-            foreach (var equationModel in _equations)
+            foreach (var equation in _equations)
             {
-                var lineSeries = GetSeries(equationModel);
+                if(!equation.IsEnabled) continue;
+
+                var lineSeries = GetSeries(equation);
                 seriesList.Add(lineSeries);
             }
 
@@ -94,6 +96,11 @@ namespace GrapthBuilder.Source.MVVM.Models
 
             Series.AddRange(seriesList);
             OnPropertyChanged("Series");
+        }
+
+        public void Uppdate()
+        {
+            RerangeX(_currentRange.LeftLimit, _currentRange.RightLimit);
         }
 
         #endregion
@@ -159,6 +166,7 @@ namespace GrapthBuilder.Source.MVVM.Models
         }
 
         #endregion
+
 
         
     }

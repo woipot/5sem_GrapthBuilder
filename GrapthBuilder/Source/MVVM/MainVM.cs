@@ -65,6 +65,7 @@ namespace GrapthBuilder.Source.MVVM
             DataClickCommand = new DelegateCommand<ChartPoint>(SellectPoint);
 
             RangeChangedCommand = new DelegateCommand<RangeChangedEventArgs>(Resize);
+            UpdateCommand = new DelegateCommand(Update);
         }
 
         #endregion
@@ -80,6 +81,7 @@ namespace GrapthBuilder.Source.MVVM
 
         public DelegateCommand<RangeChangedEventArgs> RangeChangedCommand { get; }
 
+        public DelegateCommand UpdateCommand { get; }
         #endregion
 
 
@@ -105,20 +107,8 @@ namespace GrapthBuilder.Source.MVVM
             }
         }
 
-        public void Resize(RangeChangedEventArgs eventArgs)
-        {
-            if (eventArgs.Axis is Axis axisX)
-            {
-                try
-                {
-                    _graphicsModel.RerangeX(axisX.ActualMinValue, axisX.ActualMaxValue);
-                }
-                catch (Exception)
-                {
-                    //ignore
-                }
-            }
-        }
+        
+
 
         #endregion
 
@@ -172,7 +162,25 @@ namespace GrapthBuilder.Source.MVVM
             }
         }
 
-        
+        private void Resize(RangeChangedEventArgs eventArgs)
+        {
+            if (eventArgs.Axis is Axis axisX)
+            {
+                try
+                {
+                    _graphicsModel.RerangeX(axisX.ActualMinValue, axisX.ActualMaxValue);
+                }
+                catch (Exception)
+                {
+                    //ignore
+                }
+            }
+        }
+
+        private void Update()
+        {
+            _graphicsModel.Uppdate();
+        }
         #endregion
 
     }

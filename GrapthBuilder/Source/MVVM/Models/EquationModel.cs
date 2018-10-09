@@ -26,6 +26,8 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         public string StrExpression { get; }
 
+        public bool IsEnabled { get; set; } = true;
+
         #endregion
 
 

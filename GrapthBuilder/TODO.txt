@@ -1,7 +1,7 @@
 ﻿1. Zooming +
 1.2 replace event to MainVm +
 
-3. IsEnabled from grahics
+3. IsEnabled from grahics + 
 4. chose colr func for menu
 5. tangent and normal
 6. Style options

@@ -27,9 +27,9 @@
             <Setter Property="Background" Value="#FF2D2D30"/>
             <Setter Property="Foreground" Value="Aqua"/>
         </Style>
-        
-        <converters:ItemPositionToIndexConverter x:Key="NumConverter"/>
 
+        <converters:ItemPositionToIndexConverter x:Key="NumConverter"/>
+        
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="Background" Value="#FF2D2D30"/>
             <Setter Property="Foreground" Value="Aqua"/>
@@ -104,15 +104,28 @@
                     <DataTemplate x:Key="EqColumnDataTemplate" DataType="models:EquationModel" >
                         <TextBlock Text="{Binding StrExpression}" HorizontalAlignment="Left" Foreground="Chartreuse"/>
                     </DataTemplate>
+
+                    <DataTemplate x:Key="CheckDataTemplate" DataType="models:EquationModel">
+                        <CheckBox IsChecked="{Binding IsEnabled}"/>
+                    </DataTemplate>
                 </ListView.Resources>
 
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="№" CellTemplate="{StaticResource ResourceKey=NumberColumnDataTemplate}"/>
+                        <GridViewColumn Header="isOn" CellTemplate="{StaticResource ResourceKey = CheckDataTemplate}"/> 
+                        <GridViewColumn Header="№" CellTemplate="{StaticResource ResourceKey = NumberColumnDataTemplate}"/>
                         <GridViewColumn Header="Equation" CellTemplate="{StaticResource ResourceKey = EqColumnDataTemplate}"/>
                     </GridView>
                 </ListView.View>
             </ListView>
+            <Button Content="Update" Command="{Binding UpdateCommand}" Foreground="White">
+                <Button.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                        <GradientStop Color="#FF434141" Offset="0"/>
+                        <GradientStop Color="#FF696262" Offset="1"/>
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
         </StackPanel>
         
     </Grid>
