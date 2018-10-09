@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using ELW.Library.Math;
 using ELW.Library.Math.Expressions;
@@ -15,19 +16,15 @@ namespace GrapthBuilder.Source.MVVM.Models
     internal class EquationModel : BindableBase
     {
         private readonly double _defaultRange;
-        private readonly double _step;
+        private readonly double _stepMult;
 
-        private readonly string _strExpression;
         private readonly CompiledExpression _expression;
         private readonly string _variableName;
 
 
         #region Properties
-        public double Step => _step;
 
-        public string VariableName => _variableName;
-
-        public string StrExpression => _strExpression;
+        public string StrExpression { get; }
 
         #endregion
 
@@ -35,11 +32,11 @@ namespace GrapthBuilder.Source.MVVM.Models
         #region Constructors
 
         public EquationModel(string strExpr, CompiledExpression optimizedExpression,
-                        double step = 0.01, string variableName = "x", double defaultRange = 100)
+                        double stepMult = 1, string variableName = "x", double defaultRange = 100)
         {
-            _strExpression = strExpr;
+            StrExpression = strExpr;
             _expression = optimizedExpression;
-            _step = step;
+            _stepMult = stepMult;
             _variableName = variableName;
             _defaultRange = defaultRange;
 
@@ -72,7 +69,7 @@ namespace GrapthBuilder.Source.MVVM.Models
         {
             try
             {
-                var variable = new VariableValue(point, VariableName);
+                var variable = new VariableValue(point, _variableName);
                 var resInPoint = ToolsHelper.Calculator.Calculate(_expression, new List<VariableValue> { variable });
                 var observablePoint = new ObservablePoint(point, resInPoint);
 
@@ -88,14 +85,26 @@ namespace GrapthBuilder.Source.MVVM.Models
         {
             var points = new ChartValues<ObservablePoint>();
 
-            var step = range.Length() / _defaultRange;
-            //var currentStep = Step + Step * Math.Round(_range.Length() / _defaultRange);
+            var step = range.Length() / (_defaultRange * _stepMult);
+
             for (var i = range.LeftLimit; i <= range.RightLimit; i += step)
             {
                 var pointResult = CalculateInPoint(i);
+
+                //if (points.Count != 0)
+                //{
+                //    //TODO Y scale
+                //    var lastPoint = points.Last();
+                //    var difference = Math.Abs(pointResult.Y - lastPoint.Y);
+                //    var differenceLimit = range.Length() / (10 );
+                //    if (difference > differenceLimit)
+                //    {
+                //        lastPoint.Y = double.NaN;
+                //    }
+                //}
+
                 points.Add(pointResult);
             }
-
             return points;
         }
 

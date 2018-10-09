@@ -15,7 +15,7 @@ namespace GrapthBuilder.Source.MVVM.Models
     internal class GraphicsModel : BindableBase
     {
         private const double DefaultRange = 10;
-        private const double Step = 1;
+        private const double StepMult = 2;
 
 
         private readonly ObservableCollection<EquationModel> _equations;
@@ -79,15 +79,21 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         public void RerangeX(double axisXActualMinValue, double axisXActualMaxValue)
         {
-            if(Series.Any())
-                Series.Clear();
 
+            var seriesList = new List<LineSeries>();
             _currentRange = new Range(axisXActualMinValue, axisXActualMaxValue);
             foreach (var equationModel in _equations)
             {
-                AddSeries(equationModel);
+                var lineSeries = GetSeries(equationModel);
+                seriesList.Add(lineSeries);
             }
-           
+
+
+            if (Series.Any())
+                Series.Clear();
+
+            Series.AddRange(seriesList);
+            OnPropertyChanged("Series");
         }
 
         #endregion
@@ -118,7 +124,7 @@ namespace GrapthBuilder.Source.MVVM.Models
             var compiledExpression = ToolsHelper.Compiler.Compile(preparedExpression);
             var optimizedExpression = ToolsHelper.Optimizer.Optimize(compiledExpression);
 
-            var equastion = new EquationModel(equationStr + "= y", optimizedExpression, Step);
+            var equastion = new EquationModel(equationStr + "= y", optimizedExpression, StepMult);
 
             return equastion;
         }
@@ -130,26 +136,26 @@ namespace GrapthBuilder.Source.MVVM.Models
                 foreach (var item in e.NewItems)
                 {
                     var equation = item as EquationModel;
-                    AddSeries(equation);
+                    var series = GetSeries(equation);
+                    Series.Add(series);
                 }
+                OnPropertyChanged("Series");
             }
-            if (e.Action == NotifyCollectionChangedAction.Remove)
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
                 
                 OnPropertyChanged("Series");
             }
         }
 
-        private void AddSeries(EquationModel equation)
+        private LineSeries GetSeries(EquationModel equation)
         {
             var lineSeries = equation.GetSeriesInRange(_currentRange);
             lineSeries.Fill = Brushes.Transparent;
             lineSeries.PointGeometrySize = 1;
             lineSeries.Tag = equation;
 
-            Series.Add(lineSeries);
-
-            OnPropertyChanged("Series");
+            return lineSeries;
         }
 
         #endregion

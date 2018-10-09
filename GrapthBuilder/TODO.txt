@@ -1,7 +1,6 @@
-﻿1. Zooming
-1.2 replace event to MainVm
+﻿1. Zooming +
+1.2 replace event to MainVm +
 
-2. Add Eq field  
 3. IsEnabled from grahics
 4. chose colr func for menu
 5. tangent and normal
