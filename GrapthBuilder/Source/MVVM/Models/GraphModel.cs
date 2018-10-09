@@ -66,6 +66,19 @@ namespace GrapthBuilder.Source.MVVM.Models
             OnPropertyChanged("Equations");
         }
 
+        public void AppendFromFile(string patch)
+        {
+            var result = Load(patch);
+            foreach (var equation in result)
+            {
+                _equations.Add(equation);
+            }
+
+            OnPropertyChanged("Equations");
+        }
+
+
+
         public void RerangeX(double axisXActualMinValue, double axisXActualMaxValue)
         {
             if(_series.Any())

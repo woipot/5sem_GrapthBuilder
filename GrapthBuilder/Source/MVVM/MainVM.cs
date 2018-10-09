@@ -117,7 +117,7 @@ namespace GrapthBuilder.Source.MVVM
                 var patch = dialog.FileName;
                 try
                 {
-                    _graphicsModel.LoadFromFile(patch);
+                    _graphicsModel.AppendFromFile(patch);
                 }
                 catch (Exception er)
                 {
