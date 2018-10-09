@@ -14,9 +14,11 @@ namespace GrapthBuilder.Source.MVVM.Models
 {
     internal class GraphicsModel : BindableBase
     {
+        private static readonly ColorSet Colors;
+
         private const double DefaultRange = 10;
         private const double StepMult = 2;
-
+        
 
         private readonly ObservableCollection<EquationModel> _equations;
         private Range _currentRange;
@@ -33,13 +35,18 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         #region Constructor
 
+        static GraphicsModel()
+        {
+            Colors = new ColorSet();
+        }
+
         public GraphicsModel()
         {
             _equations = new ObservableCollection<EquationModel>();
             _equations.CollectionChanged += UppdateSeries;
 
             _currentRange = new Range(-DefaultRange, DefaultRange);
-
+           
             Series = new SeriesCollection();
         }
 
@@ -79,7 +86,6 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         public void RerangeX(double axisXActualMinValue, double axisXActualMaxValue)
         {
-
             var seriesList = new List<LineSeries>();
             _currentRange = new Range(axisXActualMinValue, axisXActualMaxValue);
             foreach (var equation in _equations)
@@ -131,7 +137,7 @@ namespace GrapthBuilder.Source.MVVM.Models
             var compiledExpression = ToolsHelper.Compiler.Compile(preparedExpression);
             var optimizedExpression = ToolsHelper.Optimizer.Optimize(compiledExpression);
 
-            var equastion = new EquationModel(equationStr + "= y", optimizedExpression, StepMult);
+            var equastion = new EquationModel(equationStr + "= y", optimizedExpression, Colors.GetNext() ,StepMult);
 
             return equastion;
         }
@@ -159,6 +165,7 @@ namespace GrapthBuilder.Source.MVVM.Models
         {
             var lineSeries = equation.GetSeriesInRange(_currentRange);
             lineSeries.Fill = Brushes.Transparent;
+            lineSeries.Stroke = equation.Brush;
             lineSeries.PointGeometrySize = 1;
             lineSeries.Tag = equation;
 
@@ -167,8 +174,6 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         #endregion
 
-
-        
     }
     
 }

@@ -3,14 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
+using System.Windows.Forms;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using GrapthBuilder.Source.MVVM.Models;
 using LiveCharts;
 using LiveCharts.Events;
 using LiveCharts.Wpf;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Mvvm;
-using Microsoft.Win32;
+using MessageBox = System.Windows.MessageBox;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace GrapthBuilder.Source.MVVM
 {
@@ -66,6 +70,8 @@ namespace GrapthBuilder.Source.MVVM
 
             RangeChangedCommand = new DelegateCommand<RangeChangedEventArgs>(Resize);
             UpdateCommand = new DelegateCommand(Update);
+
+            ChangeColorCommand = new DelegateCommand<MouseEventArgs>(ChangeColor);
         }
 
         #endregion
@@ -82,6 +88,8 @@ namespace GrapthBuilder.Source.MVVM
         public DelegateCommand<RangeChangedEventArgs> RangeChangedCommand { get; }
 
         public DelegateCommand UpdateCommand { get; }
+
+        public DelegateCommand<MouseEventArgs> ChangeColorCommand { get; }
         #endregion
 
 
@@ -180,6 +188,21 @@ namespace GrapthBuilder.Source.MVVM
         private void Update()
         {
             _graphicsModel.Uppdate();
+        }
+
+        private void ChangeColor(MouseEventArgs e)
+        {
+            var colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                var color = Color.FromRgb(colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
+                var ellipse = e.Source as Ellipse;
+                if (ellipse?.DataContext is EquationModel model)
+                    model.Brush = new SolidColorBrush(color);
+
+                Update();
+            }
+
         }
         #endregion
 

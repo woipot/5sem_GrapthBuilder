@@ -34,7 +34,7 @@
             <Setter Property="Background" Value="#FF2D2D30"/>
             <Setter Property="Foreground" Value="Aqua"/>
         </Style>
-
+        
     </Window.Resources>
    
     
@@ -65,7 +65,8 @@
             <lvc:CartesianChart.AxisY>
                 <lvc:Axis Title="Y" x:Name="AxisY"
                           MaxRange="{Binding MaxRange, Mode=OneWay}"
-                          MinRange="{Binding MinRange, Mode=OneWay}"/>
+                          MinRange="{Binding MinRange, Mode=OneWay}"
+                           />
             </lvc:CartesianChart.AxisY>
             
 
@@ -95,6 +96,7 @@
             </TextBlock>
 
             <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30" Margin="0,20">
+                
                 <ListView.Resources>
                     <DataTemplate x:Key="NumberColumnDataTemplate">
                         <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem},
@@ -102,19 +104,33 @@
                     </DataTemplate>
 
                     <DataTemplate x:Key="EqColumnDataTemplate" DataType="models:EquationModel" >
-                        <TextBlock Text="{Binding StrExpression}" HorizontalAlignment="Left" Foreground="Chartreuse"/>
+                        <TextBlock Text="{Binding StrExpression}" HorizontalAlignment="Stretch" Foreground="Chartreuse"/>
                     </DataTemplate>
 
                     <DataTemplate x:Key="CheckDataTemplate" DataType="models:EquationModel">
                         <CheckBox IsChecked="{Binding IsEnabled}"/>
                     </DataTemplate>
+
+                    <DataTemplate x:Key="ColorDataTemplate" DataType="models:EquationModel">
+                        <StackPanel>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseRightButtonDown">
+                                    <command:EventToCommand Command="{Binding RelativeSource 
+                                        ={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.ChangeColorCommand}"
+                                                            PassEventArgsToCommand="True" />
+                            </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Ellipse Fill="{Binding Brush}" Height="15" Width="15"/>
+                        </StackPanel>
+                    </DataTemplate>
                 </ListView.Resources>
 
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="isOn" CellTemplate="{StaticResource ResourceKey = CheckDataTemplate}"/> 
+                        <GridViewColumn Header="" CellTemplate="{StaticResource ResourceKey = CheckDataTemplate}"/> 
                         <GridViewColumn Header="№" CellTemplate="{StaticResource ResourceKey = NumberColumnDataTemplate}"/>
                         <GridViewColumn Header="Equation" CellTemplate="{StaticResource ResourceKey = EqColumnDataTemplate}"/>
+                        <GridViewColumn Header="Color" CellTemplate="{StaticResource ColorDataTemplate}"/>
                     </GridView>
                 </ListView.View>
             </ListView>

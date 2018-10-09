@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using System.Windows.Media;
 using ELW.Library.Math;
 using ELW.Library.Math.Expressions;
 using ELW.Library.Math.Tools;
@@ -20,7 +21,7 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         private readonly CompiledExpression _expression;
         private readonly string _variableName;
-
+        private Brush _brush;
 
         #region Properties
 
@@ -28,12 +29,22 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         public bool IsEnabled { get; set; } = true;
 
+        public Brush Brush
+        {
+            get =>_brush;
+            set
+            {
+                _brush = value;
+                OnPropertyChanged("Brush");
+            }
+        }
+
         #endregion
 
 
         #region Constructors
 
-        public EquationModel(string strExpr, CompiledExpression optimizedExpression,
+        public EquationModel(string strExpr, CompiledExpression optimizedExpression, Color color, 
                         double stepMult = 1, string variableName = "x", double defaultRange = 100)
         {
             StrExpression = strExpr;
@@ -41,6 +52,8 @@ namespace GrapthBuilder.Source.MVVM.Models
             _stepMult = stepMult;
             _variableName = variableName;
             _defaultRange = defaultRange;
+
+            Brush = new SolidColorBrush(color);
 
         }
 
