@@ -19,25 +19,12 @@ namespace GrapthBuilder
             {
                 vm.AxisX = AxisX;
                 vm.AxisY = AxisY;
+
+                MainChart.MouseMove += vm.MouseMove;
+                MainChart.ManipulationCompleted += vm.Resize;
             }
 
         }
 
-        private void ChartMouseMove(object sender, MouseEventArgs e)
-        {
-
-            Point point;
-            try
-            {
-                point = MainChart.ConvertToChartValues(e.GetPosition(MainChart));
-            }
-            catch (Exception)
-            {
-                point = new Point(0, 0);
-            }
-
-            X.Text = point.X.ToString("N");
-            Y.Text = point.Y.ToString("N");
-        }
     }
 }

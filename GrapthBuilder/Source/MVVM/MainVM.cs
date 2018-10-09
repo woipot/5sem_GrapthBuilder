@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using GrapthBuilder.Source.MVVM.Models;
 using LiveCharts;
 using LiveCharts.Wpf;
@@ -15,7 +16,7 @@ namespace GrapthBuilder.Source.MVVM
     internal class MainVM : BindableBase
     {
 
-        private GraphicsModel _graphicsModel;
+        private readonly GraphicsModel _graphicsModel;
 
         private ZoomingOptions _zoomingMode;
 
@@ -38,15 +39,14 @@ namespace GrapthBuilder.Source.MVVM
         public double SelectedX { get; set; }
         public double SelectedY { get; set; }
 
-
-        public Func<double, string> XFormatter { get; set; }
-        public Func<double, string> YFormatter { get; set; }
-
         public double MaxRange { get; }
         public double MinRange { get; }
 
         public Axis AxisX { get; set; } = null;
         public Axis AxisY { get; set; } = null;
+
+        public string MouseX { get; private set; }
+        public string MouseY { get; private set; }
         #endregion
 
 
@@ -66,9 +66,6 @@ namespace GrapthBuilder.Source.MVVM
             LoadCommand = new DelegateCommand(LoadFromFile);
             AppendCommand = new DelegateCommand(AppendFromFile);
             DataClickCommand = new DelegateCommand<ChartPoint>(SellectPoint);
-
-            XFormatter = RerangeX;
-            YFormatter = RerangeY;
         }
 
         #endregion
@@ -81,9 +78,44 @@ namespace GrapthBuilder.Source.MVVM
         public DelegateCommand AppendCommand { get; }
 
         public DelegateCommand<ChartPoint> DataClickCommand { get; }
-    
-        public DelegateCommand ResetZoominCommand { get; }
 
+
+        #endregion
+
+
+        #region Events
+        public void MouseMove(object sender, MouseEventArgs e)
+        {
+            if (sender is CartesianChart chart)
+            {
+                Point point;
+                try
+                {
+                    point = chart.ConvertToChartValues(e.GetPosition(chart));
+                }
+                catch (Exception)
+                {
+                    point = new Point(0, 0);
+                }
+
+                MouseX = point.X.ToString("F");
+                MouseY = point.Y.ToString("F");
+                OnPropertyChanged("MouseX");
+                OnPropertyChanged("MouseY");
+            }
+        }
+
+        public void Resize(object sender, ManipulationCompletedEventArgs e)
+        {
+            try
+            {
+                _graphicsModel.RerangeX(AxisX.ActualMinValue, AxisX.ActualMaxValue);
+            }
+            catch (Exception)
+            {
+                //ignore
+            }
+        }
 
         #endregion
 
@@ -137,24 +169,7 @@ namespace GrapthBuilder.Source.MVVM
             }
         }
 
-        private string RerangeX(double val)
-        {
-            try
-            {
-                _graphicsModel.RerangeX(AxisX.ActualMinValue, AxisX.ActualMaxValue);
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
-            return val.ToString("R");
-        }
-    
-        private string RerangeY(double val)
-        {
-            return val.ToString("R");
-        }
+        
         #endregion
 
     }

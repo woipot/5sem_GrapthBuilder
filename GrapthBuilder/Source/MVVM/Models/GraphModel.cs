@@ -19,13 +19,13 @@ namespace GrapthBuilder.Source.MVVM.Models
 
 
         private readonly ObservableCollection<EquationModel> _equations;
-        private readonly SeriesCollection _series;
         private Range _currentRange;
         
 
         #region Properties
 
-        public SeriesCollection Series => _series;
+        public SeriesCollection Series { get; }
+
         public IEnumerable<EquationModel> Equations => _equations;
 
         #endregion
@@ -40,7 +40,7 @@ namespace GrapthBuilder.Source.MVVM.Models
 
             _currentRange = new Range(-DefaultRange, DefaultRange);
 
-            _series = new SeriesCollection();
+            Series = new SeriesCollection();
         }
 
         #endregion
@@ -53,8 +53,8 @@ namespace GrapthBuilder.Source.MVVM.Models
             if (_equations.Any())
                 _equations.Clear();
 
-            if (_series.Any())
-                _series.Clear();
+            if (Series.Any())
+                Series.Clear();
 
 
             var result = Load(patch);
@@ -77,12 +77,10 @@ namespace GrapthBuilder.Source.MVVM.Models
             OnPropertyChanged("Equations");
         }
 
-
-
         public void RerangeX(double axisXActualMinValue, double axisXActualMaxValue)
         {
-            if(_series.Any())
-                _series.Clear();
+            if(Series.Any())
+                Series.Clear();
 
             _currentRange = new Range(axisXActualMinValue, axisXActualMaxValue);
             foreach (var equationModel in _equations)
@@ -106,7 +104,7 @@ namespace GrapthBuilder.Source.MVVM.Models
                 string str;
                 while ((str = sr.ReadLine()) != null)
                 {
-                    var equastion = CreateEquation(str, _currentRange);
+                    var equastion = CreateEquation(str);
                     resultList.Add(equastion);
                 }
             }
@@ -114,7 +112,7 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         }
 
-        private static EquationModel CreateEquation(string equationStr, Range range)
+        private static EquationModel CreateEquation(string equationStr)
         {
             var preparedExpression = ToolsHelper.Parser.Parse(equationStr);
             var compiledExpression = ToolsHelper.Compiler.Compile(preparedExpression);
@@ -145,11 +143,11 @@ namespace GrapthBuilder.Source.MVVM.Models
         private void AddSeries(EquationModel equation)
         {
             var lineSeries = equation.GetSeriesInRange(_currentRange);
-            //lineSeries.Fill = Brushes.Transparent;
-            //lineSeries.PointGeometrySize = 1;
-            //lineSeries.Tag = equation;
+            lineSeries.Fill = Brushes.Transparent;
+            lineSeries.PointGeometrySize = 1;
+            lineSeries.Tag = equation;
 
-            _series.Add(lineSeries);
+            Series.Add(lineSeries);
 
             OnPropertyChanged("Series");
         }
