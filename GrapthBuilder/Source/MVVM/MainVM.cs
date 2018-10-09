@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using GrapthBuilder.Source.MVVM.Models;
 using LiveCharts;
+using LiveCharts.Events;
 using LiveCharts.Wpf;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Mvvm;
@@ -15,7 +16,6 @@ namespace GrapthBuilder.Source.MVVM
 {
     internal class MainVM : BindableBase
     {
-
         private readonly GraphicsModel _graphicsModel;
 
         private ZoomingOptions _zoomingMode;
@@ -42,9 +42,6 @@ namespace GrapthBuilder.Source.MVVM
         public double MaxRange { get; }
         public double MinRange { get; }
 
-        public Axis AxisX { get; set; } = null;
-        public Axis AxisY { get; set; } = null;
-
         public string MouseX { get; private set; }
         public string MouseY { get; private set; }
         #endregion
@@ -66,6 +63,8 @@ namespace GrapthBuilder.Source.MVVM
             LoadCommand = new DelegateCommand(LoadFromFile);
             AppendCommand = new DelegateCommand(AppendFromFile);
             DataClickCommand = new DelegateCommand<ChartPoint>(SellectPoint);
+
+            RangeChangedCommand = new DelegateCommand<RangeChangedEventArgs>(Resize);
         }
 
         #endregion
@@ -79,6 +78,7 @@ namespace GrapthBuilder.Source.MVVM
 
         public DelegateCommand<ChartPoint> DataClickCommand { get; }
 
+        public DelegateCommand<RangeChangedEventArgs> RangeChangedCommand { get; }
 
         #endregion
 
@@ -105,15 +105,18 @@ namespace GrapthBuilder.Source.MVVM
             }
         }
 
-        public void Resize(object sender, ManipulationCompletedEventArgs e)
+        public void Resize(RangeChangedEventArgs eventArgs)
         {
-            try
+            if (eventArgs.Axis is Axis axisX)
             {
-                _graphicsModel.RerangeX(AxisX.ActualMinValue, AxisX.ActualMaxValue);
-            }
-            catch (Exception)
-            {
-                //ignore
+                try
+                {
+                    _graphicsModel.RerangeX(axisX.ActualMinValue, axisX.ActualMaxValue);
+                }
+                catch (Exception)
+                {
+                    //ignore
+                }
             }
         }
 

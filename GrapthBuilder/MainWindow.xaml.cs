@@ -17,14 +17,9 @@ namespace GrapthBuilder
 
             if (DataContext is MainVM vm)
             {
-                vm.AxisX = AxisX;
-                vm.AxisY = AxisY;
-
                 MainChart.MouseMove += vm.MouseMove;
-                MainChart.ManipulationCompleted += vm.Resize;
             }
 
         }
-
     }
 }

@@ -56,9 +56,11 @@
         </Menu>
 
         <lvc:CartesianChart x:Name="MainChart" Grid.Column="0" Grid.Row="1"  Background="#FF2D2D30"
+                            DisableAnimations="True"
                             Zoom="{Binding ZoomingMode}"
-                            Series="{Binding Series, Mode=OneWay}"
-                            DataClickCommand="{Binding DataClickCommand}">
+                            Series="{Binding Series}"
+                            DataClickCommand="{Binding DataClickCommand}"
+                            >
 
             <lvc:CartesianChart.AxisY>
                 <lvc:Axis Title="Y" x:Name="AxisY"
@@ -70,7 +72,8 @@
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis Title="X" x:Name="AxisX" 
                           MaxRange="{Binding MaxRange, Mode=OneWay}"
-                          MinRange="{Binding MinRange, Mode=OneWay}"/>
+                          MinRange="{Binding MinRange, Mode=OneWay}"
+                          RangeChangedCommand="{Binding RangeChangedCommand}"/>
             </lvc:CartesianChart.AxisX>
         </lvc:CartesianChart>
 
