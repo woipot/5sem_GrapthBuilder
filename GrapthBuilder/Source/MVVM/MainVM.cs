@@ -41,6 +41,8 @@ namespace GrapthBuilder.Source.MVVM
         public double SelectedX { get; set; }
         public double SelectedY { get; set; }
 
+        public bool SelectedIsExist { get; private set; } = false;
+
         public double MaxRange { get; }
         public double MinRange { get; }
 
@@ -70,6 +72,7 @@ namespace GrapthBuilder.Source.MVVM
             UpdateCommand = new DelegateCommand(Update);
 
             ChangeColorCommand = new DelegateCommand<MouseEventArgs>(ChangeColor);
+            CreateTangentCommand = new DelegateCommand(CreateTangent);
         }
 
         #endregion
@@ -88,6 +91,8 @@ namespace GrapthBuilder.Source.MVVM
         public DelegateCommand UpdateCommand { get; }
 
         public DelegateCommand<MouseEventArgs> ChangeColorCommand { get; }
+
+        public DelegateCommand CreateTangentCommand { get; }
         #endregion
 
 
@@ -112,10 +117,6 @@ namespace GrapthBuilder.Source.MVVM
                 OnPropertyChanged("MouseY");
             }
         }
-
-        
-
-
         #endregion
 
 
@@ -163,6 +164,11 @@ namespace GrapthBuilder.Source.MVVM
             {
                 SelectedX = point.X;
                 SelectedY = point.Y;
+
+                if (SelectedIsExist == false)
+                    SelectedIsExist = true;
+
+                OnPropertyChanged("SelectedIsExist");
                 OnPropertyChanged("SelectedX");
                 OnPropertyChanged("SelectedY");
             }
@@ -201,6 +207,11 @@ namespace GrapthBuilder.Source.MVVM
                 Update();
             }
 
+        }
+
+        private void CreateTangent()
+        {
+            _graphicsModel.CreateTangentFromPoint(SelectedX, SelectedY);
         }
         #endregion
 

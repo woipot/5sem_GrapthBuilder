@@ -8,3 +8,5 @@
 5. tangent and normal
 6. Style options+
 7. Save as picture
+
+http://mathparser.org

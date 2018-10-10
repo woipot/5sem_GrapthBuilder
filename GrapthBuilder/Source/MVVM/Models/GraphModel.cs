@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Media;
@@ -109,6 +110,25 @@ namespace GrapthBuilder.Source.MVVM.Models
             RerangeX(_currentRange.LeftLimit, _currentRange.RightLimit);
         }
 
+        public void CreateTangentFromPoint(double x, double y)
+        {
+            var equation = FindByPoint(x, y);
+
+            var derStr = "der(" + equation.StrExpression + "," + equation.VariableName + ")";
+            var derivativeExpression = new Expression(derStr);
+
+            var argument = new Argument(equation.VariableName, x);
+            derivativeExpression.addArguments(argument);
+
+            var derivativeResult = derivativeExpression.calculate();
+
+            var tangentumEqStr = y.ToString(CultureInfo.InvariantCulture) + "+(" + derivativeResult.ToString(CultureInfo.InvariantCulture) 
+                + ")*(x-(" + x.ToString(CultureInfo.InvariantCulture) + "))";
+
+            var tangentumEqModel = CreateEquation(tangentumEqStr);
+            _equations.Add(tangentumEqModel);
+            OnPropertyChanged("Equations");
+        }
         #endregion
 
 
@@ -135,7 +155,7 @@ namespace GrapthBuilder.Source.MVVM.Models
         {
             var expression = new Expression(equationStr);
 
-            var equastion = new EquationModel(equationStr + "= y", expression, Colors.GetNext() ,StepMult);
+            var equastion = new EquationModel(expression, Colors.GetNext() ,StepMult);
 
             return equastion;
         }
@@ -168,6 +188,19 @@ namespace GrapthBuilder.Source.MVVM.Models
             lineSeries.Tag = equation;
 
             return lineSeries;
+        }
+
+        private EquationModel FindByPoint(double x, double y)
+        {
+            foreach (var equation in _equations)
+            {
+                var result = equation.CalculateInPoint(x);
+
+                if (y.Equals(result.Y))
+                    return equation;
+            }
+
+            return null;
         }
 
         #endregion

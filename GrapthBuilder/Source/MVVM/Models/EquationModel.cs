@@ -34,9 +34,11 @@ namespace GrapthBuilder.Source.MVVM.Models
             }
         }
 
-        public string StrExpression { get; }
+        public string StrExpression => _expression.getExpressionString();
 
         public bool IsEnabled { get; set; } = true;
+
+        public string VariableName => _variableName;
 
         public Brush Brush
         {
@@ -53,10 +55,9 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         #region Constructors
 
-        public EquationModel(string strExpr, Expression optimizedExpression, Color color, 
+        public EquationModel(Expression optimizedExpression, Color color, 
                         double stepMult = 1, string variableName = "x", double defaultRange = 100)
         {
-            StrExpression = strExpr;
             _stepMult = stepMult;
             _variableName = variableName;
             _defaultRange = defaultRange;
@@ -88,16 +89,12 @@ namespace GrapthBuilder.Source.MVVM.Models
             var range = new Range(leftLimit, rightLimit);
             return GetSeriesInRange(range);
         }
-        #endregion
 
-
-        #region PrivateMethods
-
-        private ObservablePoint CalculateInPoint(double point)
+        public ObservablePoint CalculateInPoint(double point)
         {
             try
             {
-               _argument.setArgumentValue(point);
+                _argument.setArgumentValue(point);
 
                 var resInPoint = _expression.calculate();
                 var observablePoint = new ObservablePoint(point, resInPoint);
@@ -110,7 +107,7 @@ namespace GrapthBuilder.Source.MVVM.Models
             }
         }
 
-        private ChartValues<ObservablePoint> CalculateRange(Range range)
+        public ChartValues<ObservablePoint> CalculateRange(Range range)
         {
             var points = new ChartValues<ObservablePoint>();
 
@@ -136,7 +133,6 @@ namespace GrapthBuilder.Source.MVVM.Models
             }
             return points;
         }
-
         #endregion
 
     }

@@ -22,22 +22,22 @@
             <Setter Property="Background" Value="#FF2D2D30"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
-        
+
         <Style TargetType="TextBlock">
             <Setter Property="Background" Value="#FF2D2D30"/>
             <Setter Property="Foreground" Value="Aqua"/>
         </Style>
 
         <converters:ItemPositionToIndexConverter x:Key="NumConverter"/>
-        
+
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="Background" Value="#FF2D2D30"/>
             <Setter Property="Foreground" Value="Aqua"/>
         </Style>
-        
+
     </Window.Resources>
-   
-    
+
+
     <Grid Background="#FF2D2D30">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
@@ -59,7 +59,7 @@
                             DisableAnimations="True"
                             Zoom="{Binding ZoomingMode}"
                             Series="{Binding Series}"
-                            DataClickCommand="{Binding DataClickCommand}"
+                            DataClickCommand="{Binding DataClickCommand}" Foreground="Black"
                             >
 
             <lvc:CartesianChart.AxisY>
@@ -68,7 +68,7 @@
                           MinRange="{Binding MinRange, Mode=OneWay}"
                            />
             </lvc:CartesianChart.AxisY>
-            
+
 
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis Title="X" x:Name="AxisX" 
@@ -78,25 +78,32 @@
             </lvc:CartesianChart.AxisX>
         </lvc:CartesianChart>
 
-        
+
 
         <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch">
             <TextBlock HorizontalAlignment="Center">
                 <TextBlock >Mouse at: </TextBlock>
-                <TextBlock x:Name="X" Text="{Binding MouseX}" Foreground="Crimson"/>
+                <TextBlock x:Name="X" Text="{Binding MouseX}" Foreground="Chartreuse"/>
                 <TextBlock >, </TextBlock>
-                <TextBlock x:Name="Y" Text="{Binding MouseY}" Foreground="Crimson"/>
-            </TextBlock>
-            
-            <TextBlock HorizontalAlignment="Center" >
-                <TextBlock >Selected point: </TextBlock>
-                <TextBlock Text="{Binding SelectedX, Mode=OneWay}" Foreground="Crimson"/>
-                <TextBlock >, </TextBlock>
-                <TextBlock Text="{Binding SelectedY, Mode=OneWay}" Foreground="Crimson"/>
+                <TextBlock x:Name="Y" Text="{Binding MouseY}" Foreground="Chartreuse"/>
             </TextBlock>
 
-            <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30" Margin="0,20">
-                
+            <TextBlock HorizontalAlignment="Center" Background="#FF2D302D" >
+                <TextBlock >Selected point: </TextBlock>
+                <TextBlock Text="{Binding SelectedX, Mode=OneWay}" Foreground="Chartreuse"/>
+                <TextBlock >, </TextBlock>
+                <TextBlock Text="{Binding SelectedY, Mode=OneWay}" Foreground="Chartreuse"/>
+            </TextBlock>
+
+            <StackPanel Orientation="Horizontal" Margin="0,20" HorizontalAlignment="Center">
+                <Button Content="Create normal" IsEnabled="{Binding SelectedIsExist}" Margin="0,0,10,0"
+                        Command="{Binding CreateNormalCommand}"/>
+                <Button Content="Create tangent" IsEnabled="{Binding SelectedIsExist}"
+                        Command="{Binding CreateTangentCommand}"/>
+            </StackPanel>
+
+            <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30">
+
                 <ListView.Resources>
                     <DataTemplate x:Key="NumberColumnDataTemplate">
                         <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem},
@@ -119,12 +126,12 @@
                                     <command:EventToCommand Command="{Binding RelativeSource 
                                         ={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.ChangeColorCommand}"
                                                             PassEventArgsToCommand="True" />
-                            </i:EventTrigger>
+                                </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <Ellipse Fill="{Binding Brush}" Height="15" Width="15"/>
                         </StackPanel>
                     </DataTemplate>
-                    
+
                     <DataTemplate x:Key="WidthDataTemplate" DataType="models:EquationModel">
                         <TextBox x:Name="WidthText" Background="#FF2D2D30" Foreground="Chartreuse" Text="{Binding LineWidth}"/>
                     </DataTemplate>
@@ -132,7 +139,7 @@
 
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="" CellTemplate="{StaticResource ResourceKey = CheckDataTemplate}"/> 
+                        <GridViewColumn Header="" CellTemplate="{StaticResource ResourceKey = CheckDataTemplate}"/>
                         <GridViewColumn Header="№" CellTemplate="{StaticResource ResourceKey = NumberColumnDataTemplate}"/>
                         <GridViewColumn Header="Equation" CellTemplate="{StaticResource ResourceKey = EqColumnDataTemplate}"/>
                         <GridViewColumn Header="Color" CellTemplate="{StaticResource ColorDataTemplate}"/>
@@ -141,6 +148,6 @@
                 </ListView.View>
             </ListView>
         </StackPanel>
-        
+
     </Grid>
 </Window>
