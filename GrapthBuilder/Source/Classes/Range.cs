@@ -4,24 +4,21 @@ namespace GrapthBuilder.Source.Classes
 {
     public class Range : ICloneable
     {
-        private double _leftLimit;
-        private double _rightLimit;
+        public double LeftLimit { get; private set; }
 
-
-        public double LeftLimit => _leftLimit;
-        public double RightLimit => _rightLimit;
+        public double RightLimit { get; private set; }
 
 
         public Range(double leftLimit, double rightLimit)
         {
-           _leftLimit = Math.Min(leftLimit, rightLimit);
-           _rightLimit = Math.Max(leftLimit, rightLimit);
+           LeftLimit = Math.Min(leftLimit, rightLimit);
+           RightLimit = Math.Max(leftLimit, rightLimit);
         }
 
 
         public bool InRange(double point)
         {
-            return point >= _leftLimit && point <= _rightLimit;
+            return point >= LeftLimit && point <= RightLimit;
         }
 
         public bool SetRange(double newLimit)
@@ -31,9 +28,9 @@ namespace GrapthBuilder.Source.Classes
             var isLeftLimit = newLimit < LeftLimit;
 
             if (isLeftLimit)
-                _leftLimit = newLimit;
+                LeftLimit = newLimit;
             else
-                _rightLimit = newLimit;
+                RightLimit = newLimit;
 
             return true;
 

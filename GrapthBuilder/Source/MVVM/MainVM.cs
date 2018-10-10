@@ -73,6 +73,7 @@ namespace GrapthBuilder.Source.MVVM
 
             ChangeColorCommand = new DelegateCommand<MouseEventArgs>(ChangeColor);
             CreateTangentCommand = new DelegateCommand(CreateTangent);
+            CreateNormalCommand = new DelegateCommand(CreateNormal);
         }
 
         #endregion
@@ -93,6 +94,8 @@ namespace GrapthBuilder.Source.MVVM
         public DelegateCommand<MouseEventArgs> ChangeColorCommand { get; }
 
         public DelegateCommand CreateTangentCommand { get; }
+
+        public DelegateCommand CreateNormalCommand { get; }
         #endregion
 
 
@@ -212,6 +215,11 @@ namespace GrapthBuilder.Source.MVVM
         private void CreateTangent()
         {
             _graphicsModel.CreateTangentFromPoint(SelectedX, SelectedY);
+        }
+
+        private void CreateNormal()
+        {
+            _graphicsModel.CreateNormalFromPoint(SelectedX, SelectedY);
         }
         #endregion
 

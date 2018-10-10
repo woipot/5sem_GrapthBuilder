@@ -128,6 +128,27 @@ namespace GrapthBuilder.Source.MVVM.Models
             var tangentumEqModel = CreateEquation(tangentumEqStr);
             _equations.Add(tangentumEqModel);
             OnPropertyChanged("Equations");
+
+        }
+        public void CreateNormalFromPoint(double x, double y)
+        {
+            var equation = FindByPoint(x, y);
+
+            var derStr = "der(" + equation.StrExpression + "," + equation.VariableName + ")";
+            var derivativeExpression = new Expression(derStr);
+
+            var argument = new Argument(equation.VariableName, x);
+            derivativeExpression.addArguments(argument);
+
+            var derivativeResult = derivativeExpression.calculate();
+
+            var tangentumEqStr = y.ToString(CultureInfo.InvariantCulture) + "+(-1/" + derivativeResult.ToString(CultureInfo.InvariantCulture)
+                                 + ")*(x-(" + x.ToString(CultureInfo.InvariantCulture) + "))";
+
+            var tangentumEqModel = CreateEquation(tangentumEqStr);
+            _equations.Add(tangentumEqModel);
+            OnPropertyChanged("Equations");
+
         }
         #endregion
 
