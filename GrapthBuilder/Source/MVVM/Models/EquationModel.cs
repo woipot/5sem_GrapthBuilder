@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Windows.Media;
-using ELW.Library.Math;
-using ELW.Library.Math.Expressions;
-using ELW.Library.Math.Tools;
 using GrapthBuilder.Source.Classes;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using Microsoft.Practices.Prism.Mvvm;
+using org.mariuszgromada.math.mxparser;
 
 namespace GrapthBuilder.Source.MVVM.Models
 {
@@ -19,11 +15,24 @@ namespace GrapthBuilder.Source.MVVM.Models
         private readonly double _defaultRange;
         private readonly double _stepMult;
 
-        private readonly CompiledExpression _expression;
+        private readonly Expression _expression;
+        private readonly Argument _argument;
+
         private readonly string _variableName;
         private Brush _brush;
+        private uint _lineWidth; 
 
         #region Properties
+
+        public uint LineWidth
+        {
+            get => _lineWidth;
+            set
+            {
+                _lineWidth = value; 
+                OnPropertyChanged("LineWidth");
+            }
+        }
 
         public string StrExpression { get; }
 
@@ -44,14 +53,18 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         #region Constructors
 
-        public EquationModel(string strExpr, CompiledExpression optimizedExpression, Color color, 
+        public EquationModel(string strExpr, Expression optimizedExpression, Color color, 
                         double stepMult = 1, string variableName = "x", double defaultRange = 100)
         {
             StrExpression = strExpr;
-            _expression = optimizedExpression;
             _stepMult = stepMult;
             _variableName = variableName;
             _defaultRange = defaultRange;
+            _lineWidth = 1;
+
+            _expression = optimizedExpression;
+            _argument = new Argument(_variableName, 0);
+            _expression.addArguments(_argument);
 
             Brush = new SolidColorBrush(color);
 
@@ -84,8 +97,9 @@ namespace GrapthBuilder.Source.MVVM.Models
         {
             try
             {
-                var variable = new VariableValue(point, _variableName);
-                var resInPoint = ToolsHelper.Calculator.Calculate(_expression, new List<VariableValue> { variable });
+               _argument.setArgumentValue(point);
+
+                var resInPoint = _expression.calculate();
                 var observablePoint = new ObservablePoint(point, resInPoint);
 
                 return observablePoint;

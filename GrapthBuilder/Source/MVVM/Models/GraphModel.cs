@@ -4,11 +4,11 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Windows.Media;
-using ELW.Library.Math;
 using GrapthBuilder.Source.Classes;
 using LiveCharts;
 using LiveCharts.Wpf;
 using Microsoft.Practices.Prism.Mvvm;
+using org.mariuszgromada.math.mxparser;
 
 namespace GrapthBuilder.Source.MVVM.Models
 {
@@ -18,7 +18,7 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         private const double DefaultRange = 10;
         private const double StepMult = 2;
-        
+           
 
         private readonly ObservableCollection<EquationModel> _equations;
         private Range _currentRange;
@@ -133,11 +133,9 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         private static EquationModel CreateEquation(string equationStr)
         {
-            var preparedExpression = ToolsHelper.Parser.Parse(equationStr);
-            var compiledExpression = ToolsHelper.Compiler.Compile(preparedExpression);
-            var optimizedExpression = ToolsHelper.Optimizer.Optimize(compiledExpression);
+            var expression = new Expression(equationStr);
 
-            var equastion = new EquationModel(equationStr + "= y", optimizedExpression, Colors.GetNext() ,StepMult);
+            var equastion = new EquationModel(equationStr + "= y", expression, Colors.GetNext() ,StepMult);
 
             return equastion;
         }
@@ -166,7 +164,7 @@ namespace GrapthBuilder.Source.MVVM.Models
             var lineSeries = equation.GetSeriesInRange(_currentRange);
             lineSeries.Fill = Brushes.Transparent;
             lineSeries.Stroke = equation.Brush;
-            lineSeries.PointGeometrySize = 1;
+            lineSeries.PointGeometrySize = equation.LineWidth;
             lineSeries.Tag = equation;
 
             return lineSeries;

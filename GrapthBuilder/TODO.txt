@@ -2,9 +2,9 @@
 1.2 replace event to MainVm +
 
 3. IsEnabled from grahics + 
-4. chose color func for menu
+4. chose color func for menu +
 4.1 equal AxisSize 
 
 5. tangent and normal
-6. Style options
+6. Style options+
 7. Save as picture

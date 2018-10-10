@@ -107,14 +107,15 @@
                         <TextBlock Text="{Binding StrExpression}" HorizontalAlignment="Stretch" Foreground="Chartreuse"/>
                     </DataTemplate>
 
-                    <DataTemplate x:Key="CheckDataTemplate" DataType="models:EquationModel">
-                        <CheckBox IsChecked="{Binding IsEnabled}"/>
+                    <DataTemplate x:Key="CheckDataTemplate" DataType="models:EquationModel" >
+                        <CheckBox IsChecked="{Binding IsEnabled}" Command="{Binding RelativeSource 
+                                  ={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.UpdateCommand}"/>
                     </DataTemplate>
 
                     <DataTemplate x:Key="ColorDataTemplate" DataType="models:EquationModel">
                         <StackPanel>
                             <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseRightButtonDown">
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
                                     <command:EventToCommand Command="{Binding RelativeSource 
                                         ={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.ChangeColorCommand}"
                                                             PassEventArgsToCommand="True" />
@@ -122,6 +123,10 @@
                             </i:Interaction.Triggers>
                             <Ellipse Fill="{Binding Brush}" Height="15" Width="15"/>
                         </StackPanel>
+                    </DataTemplate>
+                    
+                    <DataTemplate x:Key="WidthDataTemplate" DataType="models:EquationModel">
+                        <TextBox x:Name="WidthText" Background="#FF2D2D30" Foreground="Chartreuse" Text="{Binding LineWidth}"/>
                     </DataTemplate>
                 </ListView.Resources>
 
@@ -131,17 +136,10 @@
                         <GridViewColumn Header="№" CellTemplate="{StaticResource ResourceKey = NumberColumnDataTemplate}"/>
                         <GridViewColumn Header="Equation" CellTemplate="{StaticResource ResourceKey = EqColumnDataTemplate}"/>
                         <GridViewColumn Header="Color" CellTemplate="{StaticResource ColorDataTemplate}"/>
+                        <GridViewColumn Header="Width" CellTemplate="{StaticResource WidthDataTemplate}"/>
                     </GridView>
                 </ListView.View>
             </ListView>
-            <Button Content="Update" Command="{Binding UpdateCommand}" Foreground="White">
-                <Button.Background>
-                    <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
-                        <GradientStop Color="#FF434141" Offset="0"/>
-                        <GradientStop Color="#FF696262" Offset="1"/>
-                    </LinearGradientBrush>
-                </Button.Background>
-            </Button>
         </StackPanel>
         
     </Grid>

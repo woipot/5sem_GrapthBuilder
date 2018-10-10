@@ -1,8 +1,5 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Input;
+﻿using System.Windows;
 using GrapthBuilder.Source.MVVM;
-using LiveCharts.Wpf;
 
 namespace GrapthBuilder
 {
