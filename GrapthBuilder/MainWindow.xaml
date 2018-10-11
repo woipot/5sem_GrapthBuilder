@@ -40,12 +40,13 @@
 
     <Grid Background="#FF2D2D30">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="0.15*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
 
         <Menu Grid.ColumnSpan="2" Background="#FF2D2D30" VerticalAlignment="Center">
@@ -55,53 +56,65 @@
             </MenuItem>
         </Menu>
 
-        <lvc:CartesianChart x:Name="MainChart" Grid.Column="0" Grid.Row="1"  Background="#FF2D2D30"
-                            DisableAnimations="True"
-                            Zoom="{Binding ZoomingMode}"
-                            Series="{Binding Series}"
-                            DataClickCommand="{Binding DataClickCommand}" Foreground="Black"
-                            >
-
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Y" x:Name="AxisY"
-                          MaxRange="{Binding MaxRange, Mode=OneWay}"
-                          MinRange="{Binding MinRange, Mode=OneWay}"
-                           />
-            </lvc:CartesianChart.AxisY>
-
-
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="X" x:Name="AxisX" 
-                          MaxRange="{Binding MaxRange, Mode=OneWay}"
-                          MinRange="{Binding MinRange, Mode=OneWay}"
-                          RangeChangedCommand="{Binding RangeChangedCommand}"/>
-            </lvc:CartesianChart.AxisX>
-        </lvc:CartesianChart>
-
-
-
-        <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch">
-            <TextBlock HorizontalAlignment="Center">
-                <TextBlock >Mouse at: </TextBlock>
-                <TextBlock x:Name="X" Text="{Binding MouseX}" Foreground="Chartreuse"/>
-                <TextBlock >, </TextBlock>
-                <TextBlock x:Name="Y" Text="{Binding MouseY}" Foreground="Chartreuse"/>
-            </TextBlock>
-
-            <TextBlock HorizontalAlignment="Center" Background="#FF2D302D" >
+        <Grid Grid.Column="0" Grid.Row="1" Margin="10, 0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock HorizontalAlignment="Right"  Margin="0, 0, 20, 0" VerticalAlignment="Center">
                 <TextBlock >Selected point: </TextBlock>
                 <TextBlock Text="{Binding SelectedX, Mode=OneWay}" Foreground="Chartreuse"/>
                 <TextBlock >, </TextBlock>
                 <TextBlock Text="{Binding SelectedY, Mode=OneWay}" Foreground="Chartreuse"/>
             </TextBlock>
 
-            <StackPanel Orientation="Horizontal" Margin="0,20" HorizontalAlignment="Center">
-                <Button Content="Create normal" IsEnabled="{Binding SelectedIsExist}" Margin="0,0,10,0"
-                        Command="{Binding CreateNormalCommand}"/>
+            <Button Content="Create normal" IsEnabled="{Binding SelectedIsExist}" Margin="0,0,10,0"
+                    Command="{Binding CreateNormalCommand}"/>
                 <Button Content="Create tangent" IsEnabled="{Binding SelectedIsExist}"
-                        Command="{Binding CreateTangentCommand}"/>
+                    Command="{Binding CreateTangentCommand}"/>
             </StackPanel>
+        </Grid>
 
+        <Grid Grid.Column="0" Grid.Row="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <lvc:CartesianChart Grid.Row="0"
+                    x:Name="MainChart" Background="#FF2D2D30"
+                                    DisableAnimations="True"
+                                    Zoom="{Binding ZoomingMode}"
+                                    Series="{Binding Series}"
+                                    DataClickCommand="{Binding DataClickCommand}" Foreground="Black"
+                                    >
+
+                    <lvc:CartesianChart.AxisY>
+                        <lvc:Axis Title="Y" x:Name="AxisY"
+                                  MaxRange="{Binding MaxRange, Mode=OneWay}"
+                                  MinRange="{Binding MinRange, Mode=OneWay}"
+                                   />
+                    </lvc:CartesianChart.AxisY>
+
+
+                    <lvc:CartesianChart.AxisX>
+                        <lvc:Axis Title="X" x:Name="AxisX" 
+                                  MaxRange="{Binding MaxRange, Mode=OneWay}"
+                                  MinRange="{Binding MinRange, Mode=OneWay}"
+                                  RangeChangedCommand="{Binding RangeChangedCommand}"/>
+                    </lvc:CartesianChart.AxisX>
+                </lvc:CartesianChart>
+                
+                <TextBlock Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <TextBlock >Mouse at: </TextBlock>
+                    <TextBlock x:Name="X" Text="{Binding MouseX}" Foreground="Chartreuse"/>
+                    <TextBlock >, </TextBlock>
+                    <TextBlock x:Name="Y" Text="{Binding MouseY}" Foreground="Chartreuse"/>
+                </TextBlock>
+            </Grid>
+        </Grid>
+
+
+
+        <Grid Grid.Column="1" Grid.RowSpan="2" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,10">
             <ListView ItemsSource="{Binding Equations}" HorizontalAlignment="Center" Background="#FF2D2D30">
 
                 <ListView.Resources>
@@ -110,13 +123,13 @@
                 Converter={StaticResource ResourceKey=NumConverter}}" HorizontalAlignment="Center" Foreground="Chartreuse"/>
                     </DataTemplate>
 
-                    <DataTemplate x:Key="EqColumnDataTemplate" DataType="models:EquationModel" >
-                        <TextBlock Text="{Binding StrExpression}" HorizontalAlignment="Stretch" Foreground="Chartreuse"/>
+                    <DataTemplate  x:Key="EqColumnDataTemplate" DataType="models:EquationModel" >
+                        <TextBlock MinWidth="100" Text="{Binding StrExpression}" HorizontalAlignment="Stretch" Foreground="Chartreuse"/>
                     </DataTemplate>
 
                     <DataTemplate x:Key="CheckDataTemplate" DataType="models:EquationModel" >
                         <CheckBox IsChecked="{Binding IsEnabled}" Command="{Binding RelativeSource 
-                                  ={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.UpdateCommand}"/>
+                                    ={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.UpdateCommand}"/>
                     </DataTemplate>
 
                     <DataTemplate x:Key="ColorDataTemplate" DataType="models:EquationModel">
@@ -147,7 +160,7 @@
                     </GridView>
                 </ListView.View>
             </ListView>
-        </StackPanel>
+        </Grid>
 
     </Grid>
 </Window>
