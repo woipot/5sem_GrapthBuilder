@@ -41,7 +41,7 @@ namespace GrapthBuilder.Source.MVVM
         public double SelectedX { get; set; }
         public double SelectedY { get; set; }
 
-        public bool SelectedIsExist { get; private set; } = false;
+        public bool SelectedIsExist { get; private set; }
 
         public double MaxRange { get; }
         public double MinRange { get; }

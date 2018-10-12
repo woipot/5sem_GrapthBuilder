@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Media;
 using GrapthBuilder.Source.Classes;
 using LiveCharts;
@@ -12,8 +11,7 @@ namespace GrapthBuilder.Source.MVVM.Models
 {
     internal class EquationModel : BindableBase
     {
-        private readonly double _defaultRange;
-        private readonly double _stepMult;
+        private readonly double _pointsInRange;
 
         private readonly Expression _expression;
         private readonly Argument _argument;
@@ -21,6 +19,7 @@ namespace GrapthBuilder.Source.MVVM.Models
         private readonly string _variableName;
         private Brush _brush;
         private uint _lineWidth; 
+
 
         #region Properties
 
@@ -56,11 +55,10 @@ namespace GrapthBuilder.Source.MVVM.Models
         #region Constructors
 
         public EquationModel(Expression optimizedExpression, Color color, 
-                        double stepMult = 1, string variableName = "x", double defaultRange = 100)
+            string variableName = "x", double pointsInRange = 100)
         {
-            _stepMult = stepMult;
             _variableName = variableName;
-            _defaultRange = defaultRange;
+            _pointsInRange = pointsInRange;
             _lineWidth = 1;
 
             _expression = optimizedExpression;
@@ -84,12 +82,6 @@ namespace GrapthBuilder.Source.MVVM.Models
             return lineSeries;
         }
 
-        public LineSeries GetSeriesInRange(double leftLimit, double rightLimit)
-        {
-            var range = new Range(leftLimit, rightLimit);
-            return GetSeriesInRange(range);
-        }
-
         public ObservablePoint CalculateInPoint(double point)
         {
             try
@@ -111,27 +103,27 @@ namespace GrapthBuilder.Source.MVVM.Models
         {
             var points = new ChartValues<ObservablePoint>();
 
-            var step = range.Length() / (_defaultRange * _stepMult);
+            var step = range.Length() / _pointsInRange;
 
             for (var i = range.LeftLimit; i <= range.RightLimit; i += step)
             {
                 var pointResult = CalculateInPoint(i);
 
-                //if (points.Count != 0)
-                //{
-                //    //TODO Y scale
-                //    var lastPoint = points.Last();
-                //    var difference = Math.Abs(pointResult.Y - lastPoint.Y);
-                //    var differenceLimit = range.Length() / (10 );
-                //    if (difference > differenceLimit)
-                //    {
-                //        lastPoint.Y = double.NaN;
-                //    }
-                //}
-
                 points.Add(pointResult);
             }
             return points;
+        }
+
+        public double DerivativeResult(double x)
+        {
+            var derStr = "der(" + StrExpression + "," + VariableName + ")";
+            var derivativeExpression = new Expression(derStr);
+
+            var argument = new Argument(VariableName, x);
+            derivativeExpression.addArguments(argument);
+
+            var derivativeResult = derivativeExpression.calculate();
+            return derivativeResult;
         }
         #endregion
 

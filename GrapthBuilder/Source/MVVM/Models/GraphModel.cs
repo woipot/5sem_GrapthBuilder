@@ -17,19 +17,29 @@ namespace GrapthBuilder.Source.MVVM.Models
     {
         private static readonly ColorSet Colors;
 
-        private const double DefaultRange = 10;
-        private const double StepMult = 2;
+        private const double DefaultRange = 100;
            
-
         private readonly ObservableCollection<EquationModel> _equations;
+
+
         private Range _currentRange;
+        private double _defaultPointsInRange = 150;
         
 
         #region Properties
-
         public SeriesCollection Series { get; }
 
         public IEnumerable<EquationModel> Equations => _equations;
+
+        public double DefaultPointsInRange
+        {
+            get => _defaultPointsInRange;
+            set
+            {
+                _defaultPointsInRange = value;
+                OnPropertyChanged("DefaultPointsInRange");
+            }
+        }
 
         #endregion
 
@@ -65,7 +75,7 @@ namespace GrapthBuilder.Source.MVVM.Models
                 Series.Clear();
 
 
-            var result = Load(patch);
+            var result = GetEqFromFile(patch);
             foreach (var equation in result)
             {
                 _equations.Add(equation);
@@ -76,7 +86,7 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         public void AppendFromFile(string patch)
         {
-            var result = Load(patch);
+            var result = GetEqFromFile(patch);
             foreach (var equation in result)
             {
                 _equations.Add(equation);
@@ -89,6 +99,7 @@ namespace GrapthBuilder.Source.MVVM.Models
         {
             var seriesList = new List<LineSeries>();
             _currentRange = new Range(axisXActualMinValue, axisXActualMaxValue);
+
             foreach (var equation in _equations)
             {
                 if(!equation.IsEnabled) continue;
@@ -96,7 +107,6 @@ namespace GrapthBuilder.Source.MVVM.Models
                 var lineSeries = GetSeries(equation);
                 seriesList.Add(lineSeries);
             }
-
 
             if (Series.Any())
                 Series.Clear();
@@ -114,48 +124,35 @@ namespace GrapthBuilder.Source.MVVM.Models
         {
             var equation = FindByPoint(x, y);
 
-            var derStr = "der(" + equation.StrExpression + "," + equation.VariableName + ")";
-            var derivativeExpression = new Expression(derStr);
+            var derivativeResult = equation.DerivativeResult(x);
 
-            var argument = new Argument(equation.VariableName, x);
-            derivativeExpression.addArguments(argument);
 
-            var derivativeResult = derivativeExpression.calculate();
+            var tangentumEqStr =
+                $"{y.ToString(CultureInfo.InvariantCulture)}+({derivativeResult.ToString(CultureInfo.InvariantCulture)})*" +
+                $"(x-({x.ToString(CultureInfo.InvariantCulture)}))";
 
-            var tangentumEqStr = y.ToString(CultureInfo.InvariantCulture) + "+(" + derivativeResult.ToString(CultureInfo.InvariantCulture) 
-                + ")*(x-(" + x.ToString(CultureInfo.InvariantCulture) + "))";
-
-            var tangentumEqModel = CreateEquation(tangentumEqStr);
-            _equations.Add(tangentumEqModel);
-            OnPropertyChanged("Equations");
-
+            AddEquation(tangentumEqStr);
         }
+
         public void CreateNormalFromPoint(double x, double y)
         {
             var equation = FindByPoint(x, y);
 
-            var derStr = "der(" + equation.StrExpression + "," + equation.VariableName + ")";
-            var derivativeExpression = new Expression(derStr);
+            var derivativeResult = equation.DerivativeResult(x);
 
-            var argument = new Argument(equation.VariableName, x);
-            derivativeExpression.addArguments(argument);
+            var normalEqStr =
+                $"{y.ToString(CultureInfo.InvariantCulture)}+(-1/{derivativeResult.ToString(CultureInfo.InvariantCulture)})*" +
+                $"(x-({x.ToString(CultureInfo.InvariantCulture)}))";
 
-            var derivativeResult = derivativeExpression.calculate();
-
-            var tangentumEqStr = y.ToString(CultureInfo.InvariantCulture) + "+(-1/" + derivativeResult.ToString(CultureInfo.InvariantCulture)
-                                 + ")*(x-(" + x.ToString(CultureInfo.InvariantCulture) + "))";
-
-            var tangentumEqModel = CreateEquation(tangentumEqStr);
-            _equations.Add(tangentumEqModel);
-            OnPropertyChanged("Equations");
-
+            AddEquation(normalEqStr);
         }
+
         #endregion
 
 
         #region Private methods
 
-        private IEnumerable<EquationModel> Load(string patch)
+        private IEnumerable<EquationModel> GetEqFromFile(string patch)
         {
             var resultList = new List<EquationModel>();
 
@@ -172,11 +169,11 @@ namespace GrapthBuilder.Source.MVVM.Models
 
         }
 
-        private static EquationModel CreateEquation(string equationStr)
+        private EquationModel CreateEquation(string equationStr)
         {
             var expression = new Expression(equationStr);
 
-            var equastion = new EquationModel(expression, Colors.GetNext() ,StepMult);
+            var equastion = new EquationModel(expression, Colors.GetNext(), pointsInRange: _defaultPointsInRange);
 
             return equastion;
         }
@@ -203,6 +200,7 @@ namespace GrapthBuilder.Source.MVVM.Models
         private LineSeries GetSeries(EquationModel equation)
         {
             var lineSeries = equation.GetSeriesInRange(_currentRange);
+
             lineSeries.Fill = Brushes.Transparent;
             lineSeries.Stroke = equation.Brush;
             lineSeries.PointGeometrySize = equation.LineWidth;
@@ -224,6 +222,12 @@ namespace GrapthBuilder.Source.MVVM.Models
             return null;
         }
 
+        private void AddEquation(string tangentumEqStr)
+        {
+            var tangentumEqModel = CreateEquation(tangentumEqStr);
+            _equations.Add(tangentumEqModel);
+            OnPropertyChanged("Equations");
+        }
         #endregion
 
     }
